@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>中国城市地图可视化</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+    }
+    #tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 14px;
+      z-index: 1000;
+      display: none;
+    }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      z-index: 1000;
+    }
+    #info h3 {
+      margin: 0 0 10px 0;
+    }
+    #info p {
+      margin: 5px 0;
+      font-size: 12px;
+    }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "@deck.gl/core": "https://unpkg.com/@deck.gl/core@8.9.28/dist.min.js",
+      "@deck.gl/layers": "https://unpkg.com/@deck.gl/layers@8.9.28/dist.min.js",
+      "maplibre-gl": "https://unpkg.com/maplibre-gl@5.1.0/dist/maplibre-gl.js"
+    }
+  }
+  </script>
+  <link href="https://unpkg.com/maplibre-gl@5.1.0/dist/maplibre-gl.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="container"></div>
+  <div id="tooltip"></div>
+  <div id="info">
+    <h3>中国城市地图</h3>
+    <p>点击任意城市区域查看详情</p>
+    <p>数据来源: china_city.geojson</p>
+  </div>
+
+  <script type="module">
+    import {Deck} from '@deck.gl/core';
+    import {GeoJsonLayer} from '@deck.gl/layers';
+
+    const tooltip = document.getElementById('tooltip');
+    
+    // 加载GeoJSON数据
+    fetch('./data/china_city.geojson')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Loaded GeoJSON:', data);
+        
+        const deck = new Deck({
+          container: 'container',
+          initialViewState: {
+            longitude: 105,
+            latitude: 35,
+            zoom: 3.5,
+            pitch: 0,
+            bearing: 0
+          },
+          controller: true,
+          layers: [
+            new GeoJsonLayer({
+              id: 'china-cities',
+              data: data,
+              filled: true,
+              stroked: true,
+              lineWidthMinPixels: 1,
+              getFillColor: [0, 100, 200, 150],
+              getLineColor: [255, 255, 255, 100],
+              getLineWidth: 1,
+              pickable: true,
+              autoHighlight: true,
+              highlightColor: [255, 200, 0, 200],
+              
+              // 鼠标悬停事件
+              onHover: info => {
+                if (info.object) {
+                  const name2 = info.object.properties.NAME_2 || '未知';
+                  const nlName = info.object.properties.NL_NAME_2 || '';
+                  tooltip.style.display = 'block';
+                  tooltip.style.left = info.x + 'px';
+                  tooltip.style.top = info.y + 'px';
+                  tooltip.innerHTML = `<strong>${nlName || name2}</strong><br/>${name2}`;
+                } else {
+                  tooltip.style.display = 'none';
+                }
+              },
+              
+              // 点击事件 - 跳转到新页面并传递NAME_2参数
+              onClick: info => {
+                if (info.object) {
+                  const name2 = info.object.properties.NAME_2;
+                  if (name2) {
+                    // 打开新页面并传递NAME_2参数
+                    const url = `./city-detail.html?name=${encodeURIComponent(name2)}`;
+                    window.open(url, '_blank');
+                  }
+                }
+              }
+            })
+          ]
+        });
+      })
+      .catch(error => {
+        console.error('Error loading GeoJSON:', error);
+        document.getElementById('info').innerHTML += `<p style="color: red;">加载数据失败: ${error.message}</p>`;
+      });
+  </script>
+</body>
+</html>
