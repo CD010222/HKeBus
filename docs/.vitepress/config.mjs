@@ -7,11 +7,11 @@ import { createRssFile } from "./utils/rss"; // 引入 RSS 文件生成函数
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "HKeBus",
+  title: "HKebus",
   description: "A VitePress Site",
   themeConfig: themeConfig,
   vite: viteConfig,
-  base: '/HKebus',
+  base: '/HKebus/',
   markdown: {
     math: true
   },
