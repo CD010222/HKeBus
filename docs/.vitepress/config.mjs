@@ -11,7 +11,7 @@ export default defineConfig({
   description: "A VitePress Site",
   themeConfig: themeConfig,
   vite: viteConfig,
-  base: '/HKebus',
+  base: '/',
   markdown: {
     math: true
   },
