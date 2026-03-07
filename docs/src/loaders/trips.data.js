@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { parse } from 'csv-parse/sync';
 
-const dataPath = './data/city/Anhui_Anqing';
+const dataPath = './data';
 const indexURL = `${dataPath}/index.csv`;
 const trajectoryURL = `${dataPath}/trajectory.json`;
 
